@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+  <head class="head">
+    <link type="text/css" href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet" />
+    {% block title %}
+      {% if title %}
+        <title>Главная страница - {{title}}</title>
+      {% else %}
+        <title>Главная страница</title>
+      {% endif %}
+    {% endblock %}
+  </head>
+  
+  <body class="body">
+    <h1>Главная страница</h1>
+    {% block content %}
+    {% endblock content %}
+  </body>
