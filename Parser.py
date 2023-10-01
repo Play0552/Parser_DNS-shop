@@ -172,10 +172,30 @@ def create_excel():
     book.save('Parsing.xlsx')
 
 
-def excel_save(data):
+def create_sheet(sheet):
+    title_to_excel = ['Категория', 'Наименование', 'Цена', 'доступен или нет к продаже',
+                      'Ссылка страницы с товаром', 'Ссылка на главное изображение',
+                      'Ссылки на все изображения', 'Характеристики', 'Описание']
     wb = openpyxl.load_workbook('Parsing.xlsx')
-    ws = wb['Sheet']
+    wb.create_sheet(sheet)
+    ws = wb[sheet]
+    ws.append(title_to_excel)
+    wb.save('Parsing.xlsx')
+    wb.close()
+
+
+def excel_save(data: list, sheet: str):
+    wb = openpyxl.load_workbook('Parsing.xlsx')
+    ws = wb[sheet]
     ws.append(data)
+    wb.save('Parsing.xlsx')
+    wb.close()
+
+
+def excel_del_sheet(sheet: str):
+    wb = openpyxl.load_workbook('Parsing.xlsx')
+    if sheet in wb.sheetnames:
+        del wb[sheet]
     wb.save('Parsing.xlsx')
     wb.close()
 
@@ -188,8 +208,13 @@ def take_excel():
     if (not os.path.exists('Parsing.xlsx') or
             ((time.time() - os.path.getmtime('Parsing.xlsx')) > 86400)):
         create_excel()
-        cats_url = ['https://www.dns-shop.ru/catalog/recipe/877f4d35bf74c8b4/derzateli-dla-zubnyh-setok/']
-        qrator_jsid = '1696162346.502.l19KKdMJ932w2W0s-6as520cl22bsmpa58iuta4fk0dlejlci'
+        cats_url = ['https://www.dns-shop.ru/catalog/recipe/877f4d35bf74c8b4/derzateli-dla-zubnyh-setok/',
+                    'https://www.dns-shop.ru/catalog/2a8f00c7c701409e/derzhateli-dlya-videokart/',
+                    'https://www.dns-shop.ru/catalog/15efef292eb04e77/vstraivaemye-kofemashiny/',
+                    'https://www.dns-shop.ru/catalog/17a9d40a16404e77/nastolnye-chasy/',
+                    'https://www.dns-shop.ru/catalog/dc4dfa0e5f7e7fd7/metalloiskateli/']
+
+        qrator_jsid = '1696175207.460.y3aLqV96XSTGwbmp-9lt9l0s81mdoc12nsug9a7bebcblgs0j'
         cookies = {
             '_csrf': '3147e15b0fb56e58e4f6b3cdc47ddbfeb9b9c51f53babbac0840212086deeff9a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22W0K1n5_Cv8QTGGmUMM39gG8itThhklO3%22%3B%7D',
             'qrator_jsid': qrator_jsid,
@@ -197,15 +222,11 @@ def take_excel():
         total_cats = len(cats_url)
         counter_cats = total_cats
 
-        title_to_excel = ['Категория', 'Наименование', 'Цена', 'доступен или нет к продаже',
-                          'Ссылка страницы с товаром', 'Ссылка на главное изображение',
-                          'Ссылки на все изображения', 'Характеристики', 'Описание']
-        excel_save(title_to_excel)
-
         for cat_url in cats_url:
             print(f'Осталось категорий: {counter_cats} из {total_cats}')
             counter_cats -= 1
             all_products_url, cookies, category = take_all_products_url(cat_url, qrator_jsid, cookies=cookies)
+            create_sheet(category)
             total_products = len(all_products_url)
             counter_prod = total_products
             for url in all_products_url:
@@ -217,9 +238,11 @@ def take_excel():
                     to_excel = [category, all_data['name'], all_data['price'], str(all_data['available']),
                                 all_data['link'], all_data['main_image'], str(all_data['all_img_link']),
                                 str(all_data['characteristics']), all_data['description']]
-                    excel_save(to_excel)
+                    excel_save(to_excel, category)
                 print(f'Осталось: {counter_prod} из {total_products} в категории: {category}')
                 counter_prod -= 1
+        #Удалим начальную страницу в экселе
+        excel_del_sheet('Sheet')
     return
 
 

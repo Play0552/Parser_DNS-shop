@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-	{{ super() }}
-    <p class="title" ><a href="/download" onClick="alert('Пожалуйста подождите, мы подготавливаем файл для скачивания. Для начала процесса, пожалуйста, закройте это сообщение')">Скачать</a></p>
-    <p>Парсинг и подготовка файла может занять некоторое время, пожалуйста не закрывайте страницу</p>
+    <p class="button"><a href="/download" onclick="showLoadingMessage()">Скачать</a></p>
+    <p class="alert-text" id="loading-message" style="display: none;">Парсинг и подготовка файла может занять некоторое время, пожалуйста не закрывайте страницу</p>
+    <script>
+        function showLoadingMessage() {
+            var loadingMessage = document.getElementById("loading-message");
+            loadingMessage.style.display = "block";
+            alert("Пожалуйста подождите, мы подготавливаем файл для скачивания. Для начала процесса, пожалуйста, закройте это сообщение");
+        }
+    </script>
 {% endblock content %}
