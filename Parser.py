@@ -21,6 +21,8 @@ headers = {
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
 }
+
+
 def get_page(url: str, cookies=None, params=None):
     """
     Получаем html страницу от сайта, при неудаче генерируем новый qrator_jsid
@@ -219,9 +221,6 @@ def take_excel():
                 print(f'Осталось: {counter_prod} из {total_products} в категории: {category}')
                 counter_prod -= 1
     return
-
-
-
 
 
 
