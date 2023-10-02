@@ -125,7 +125,6 @@ def take_info_from_product_page(url: str, cookies=None):
     """
     Получаем всю информацию о продукте
     """
-
     link = f'https://www.dns-shop.ru{url}characteristics/'
     response, cookies = get_page(link, cookies=cookies)
     soup = BeautifulSoup(response.text, 'lxml')
@@ -145,6 +144,7 @@ def take_info_from_product_page(url: str, cookies=None):
             all_img_link = []
             for dct in dict_list:
                 all_img_link.append(dct['thumb'].replace('\\', ''))
+
     # формируем data необходимую для retail-rocket-product
     data = f'data={{"type":"retail-rocket-product","containers":[{{"id":"{product_id}","data":{{"product":"{product}","requestUrl":"{url}"}}}}]}}'
     response, cookies = get_product_param(data=data, cookies=cookies)
@@ -168,11 +168,14 @@ def take_info_from_product_page(url: str, cookies=None):
 
 
 def create_excel():
+    """Создаёт excel файл с названием Parsing.xlsx"""
     book = openpyxl.Workbook()
     book.save('Parsing.xlsx')
+    book.close()
 
 
 def create_sheet(sheet):
+    """Создаёт лист и записывает в него оглавления"""
     title_to_excel = ['Категория', 'Наименование', 'Цена', 'доступен или нет к продаже',
                       'Ссылка страницы с товаром', 'Ссылка на главное изображение',
                       'Ссылки на все изображения', 'Характеристики', 'Описание']
@@ -185,6 +188,7 @@ def create_sheet(sheet):
 
 
 def excel_save(data: list, sheet: str):
+    """Сохраняет данные в excel"""
     wb = openpyxl.load_workbook('Parsing.xlsx')
     ws = wb[sheet]
     ws.append(data)
@@ -193,6 +197,7 @@ def excel_save(data: list, sheet: str):
 
 
 def excel_del_sheet(sheet: str):
+    """Удаляет лист из файла Parsing.xlsx"""
     wb = openpyxl.load_workbook('Parsing.xlsx')
     if sheet in wb.sheetnames:
         del wb[sheet]
@@ -205,8 +210,9 @@ def take_excel():
     Создаём excel файл если его нет или если он создан более 24ч назад и заполняем,
     иначе возвращаем существующий файл
     """
+    day = 86400
     if (not os.path.exists('Parsing.xlsx') or
-            ((time.time() - os.path.getmtime('Parsing.xlsx')) > 86400)):
+            ((time.time() - os.path.getmtime('Parsing.xlsx')) > day)):
         create_excel()
         cats_url = ['https://www.dns-shop.ru/catalog/recipe/877f4d35bf74c8b4/derzateli-dla-zubnyh-setok/',
                     'https://www.dns-shop.ru/catalog/2a8f00c7c701409e/derzhateli-dlya-videokart/',
@@ -218,10 +224,10 @@ def take_excel():
         cookies = {
             '_csrf': '3147e15b0fb56e58e4f6b3cdc47ddbfeb9b9c51f53babbac0840212086deeff9a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22W0K1n5_Cv8QTGGmUMM39gG8itThhklO3%22%3B%7D',
             'qrator_jsid': qrator_jsid,
+            'city_path': 'barnaul',
         }
         total_cats = len(cats_url)
         counter_cats = total_cats
-
         for cat_url in cats_url:
             print(f'Осталось категорий: {counter_cats} из {total_cats}')
             counter_cats -= 1
@@ -244,7 +250,6 @@ def take_excel():
         #Удалим начальную страницу в экселе
         excel_del_sheet('Sheet')
     return
-
 
 
 if __name__ == '__main__':
