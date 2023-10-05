@@ -27,15 +27,16 @@ def get_page(url: str, cookies=None, params=None):
     """
     Получаем html страницу от сайта, при неудаче генерируем новый qrator_jsid
     """
+    sleep(2)  # чтобы не бомбить запросами
     response = requests.get(url, cookies=cookies, params=params, headers=headers)
     if response.status_code != 200:
         qrator_jsid = get_qrator_jsid(3)
         cookies = {
             '_csrf': '3147e15b0fb56e58e4f6b3cdc47ddbfeb9b9c51f53babbac0840212086deeff9a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22W0K1n5_Cv8QTGGmUMM39gG8itThhklO3%22%3B%7D',
             'qrator_jsid': qrator_jsid,
+            'city_path': 'barnaul',
         }
         response = requests.get(url, cookies=cookies, params=params, headers=headers)
-    sleep(2)  # чтобы не бомбить запросами
     return response, cookies
 
 
@@ -67,9 +68,9 @@ def get_product_param(data=None, cookies=None):
         cookies = {
             '_csrf': '3147e15b0fb56e58e4f6b3cdc47ddbfeb9b9c51f53babbac0840212086deeff9a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22W0K1n5_Cv8QTGGmUMM39gG8itThhklO3%22%3B%7D',
             'qrator_jsid': qrator_jsid,
+            'city_path': 'barnaul',
         }
         response = requests.post('https://www.dns-shop.ru/ajax-state/retail-rocket-product/', cookies=cookies, headers=headers, data=data)
-    sleep(2)  # чтобы не бомбить запросами
     return response, cookies
 
 def get_url_from_page(soup):
@@ -83,7 +84,7 @@ def get_url_from_page(soup):
     return all_products_url_from_page
 
 
-def take_all_products_url(cat_url: str, qrator_jsid=None, cookies=None):
+def take_all_products_url(cat_url: str, qrator_jsid, cookies=None):
     """
     Получаем все ссылки со всех страниц, а так же категорию
     """
@@ -94,6 +95,7 @@ def take_all_products_url(cat_url: str, qrator_jsid=None, cookies=None):
         cookies = {
             '_csrf': '3147e15b0fb56e58e4f6b3cdc47ddbfeb9b9c51f53babbac0840212086deeff9a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22W0K1n5_Cv8QTGGmUMM39gG8itThhklO3%22%3B%7D',
             'qrator_jsid': qrator_jsid,
+            'city_path': 'barnaul',
         }
 
     params = {
@@ -176,6 +178,8 @@ def create_excel():
 
 def create_sheet(sheet):
     """Создаёт лист и записывает в него оглавления"""
+    if len(sheet) >= 30:
+        sheet = sheet[:30]
     title_to_excel = ['Категория', 'Наименование', 'Цена', 'доступен или нет к продаже',
                       'Ссылка страницы с товаром', 'Ссылка на главное изображение',
                       'Ссылки на все изображения', 'Характеристики', 'Описание']
@@ -189,6 +193,8 @@ def create_sheet(sheet):
 
 def excel_save(data: list, sheet: str):
     """Сохраняет данные в excel"""
+    if len(sheet) >= 30:
+        sheet = sheet[:30]
     wb = openpyxl.load_workbook('Parsing.xlsx')
     ws = wb[sheet]
     ws.append(data)
@@ -214,13 +220,13 @@ def take_excel():
     if (not os.path.exists('Parsing.xlsx') or
             ((time.time() - os.path.getmtime('Parsing.xlsx')) > day)):
         create_excel()
-        cats_url = ['https://www.dns-shop.ru/catalog/recipe/877f4d35bf74c8b4/derzateli-dla-zubnyh-setok/',
-                    'https://www.dns-shop.ru/catalog/2a8f00c7c701409e/derzhateli-dlya-videokart/',
-                    'https://www.dns-shop.ru/catalog/15efef292eb04e77/vstraivaemye-kofemashiny/',
-                    'https://www.dns-shop.ru/catalog/17a9d40a16404e77/nastolnye-chasy/',
-                    'https://www.dns-shop.ru/catalog/dc4dfa0e5f7e7fd7/metalloiskateli/']
+        cats_url = ['https://www.dns-shop.ru/catalog/17a8c08c16404e77/ekshn-kamery/',
+                    'https://www.dns-shop.ru/catalog/dce2be8e6ad23389/prochie-aksessuary-k-zubnym-shhetkam-i-irrigatoram/',
+                    'https://www.dns-shop.ru/catalog/17a8ac6416404e77/adaptery-powerline/',
+                    'https://www.dns-shop.ru/catalog/17a90a4a16404e77/pusko-zaryadnye-ustrojstva/',
+                    'https://www.dns-shop.ru/catalog/17a89bb916404e77/platy-rasshireniya/']
 
-        qrator_jsid = '1696175207.460.y3aLqV96XSTGwbmp-9lt9l0s81mdoc12nsug9a7bebcblgs0j'
+        qrator_jsid = '1696478007.205.2Msy7n61HhhGhm8o-pq6sll9ggn2thjjhjftmk96sbr5s0m6v'
         cookies = {
             '_csrf': '3147e15b0fb56e58e4f6b3cdc47ddbfeb9b9c51f53babbac0840212086deeff9a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22W0K1n5_Cv8QTGGmUMM39gG8itThhklO3%22%3B%7D',
             'qrator_jsid': qrator_jsid,
